@@ -301,30 +301,34 @@ def evaluate(
 
         end_time = time.perf_counter()
         run_duration = end_time - start_time
-        if display_config.print_results:
+        if (
+            display_config.print_results
+            or display_config.file_output_dir is not None
+        ):
             console_report = EvaluationConsoleReport(test_results)
+        if display_config.print_results:
             console_report.render_to_terminal(
                 truncate_passing_cases=display_config.truncate_passing_cases,
                 display_option=display_config.display_option,
             )
 
-            # Handle full, un-truncated file exports
-            if display_config.file_output_dir is not None:
-                if display_config.file_type == "html":
-                    console_report.export_to_html(
-                        output_dir=display_config.file_output_dir,
-                        evaluation_name=identifier,
-                        theme_mode="dark",
-                    )
-                elif display_config.file_type == "md":
-                    console_report.export_to_markdown(
-                        output_dir=display_config.file_output_dir,
-                        evaluation_name=identifier,
-                    )
-                else:
-                    raise ValueError(
-                        f"Invalid file type: {display_config.file_type}"
-                    )
+        # Handle full, un-truncated file exports
+        if display_config.file_output_dir is not None:
+            if display_config.file_type == "html":
+                console_report.export_to_html(
+                    output_dir=display_config.file_output_dir,
+                    evaluation_name=identifier,
+                    theme_mode="dark",
+                )
+            elif display_config.file_type == "md":
+                console_report.export_to_markdown(
+                    output_dir=display_config.file_output_dir,
+                    evaluation_name=identifier,
+                )
+            else:
+                raise ValueError(
+                    f"Invalid file type: {display_config.file_type}"
+                )
 
         test_run = global_test_run_manager.get_test_run()
         if hyperparameters is not None or test_run.hyperparameters is None:
